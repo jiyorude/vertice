@@ -91,12 +91,12 @@ def process_map(bsp_path):
             output.append("Z Axis")
             output.append(f"{z}")
             output.append(f"Space until void:")
-            output.append(f"Left: {move_left}")
-            output.append(f"Right: {move_right}")
-            output.append(f"Forward: {move_forward}")
-            output.append(f"Backwards: {move_backward}")
-            output.append(f"Upwards: {move_up}")
-            output.append(f"Downwards: {move_down}")
+            output.append(f"{move_left}")
+            output.append(f"{move_right}")
+            output.append(f"{move_forward}")
+            output.append(f"{move_backward}")
+            output.append(f"{move_up}")
+            output.append(f"{move_down}")
             output.append("")
         print()
         return output
@@ -106,59 +106,54 @@ def generate_pdf(report_data, filename=f"output/vertice_output_{time}.pdf"):
     styles = getSampleStyleSheet()
     Story = []
     
-    Story.append(Paragraph("Vertice (Quake III Map Boundary Analysis Tool)", styles['Title']))
+    Story.append(Paragraph("Vertice (Quake III Map Boundary Analysis Tool)", styles['Heading1']))
     Story.append(Spacer(1, 12))
     Story.append(Paragraph(f"Report generated at: {time_full}", styles['Normal']))
     Story.append(Spacer(1, 12))
 
     for data in report_data:
-        if isinstance(data, str):
-            Story.append(Paragraph(data, styles['Normal']))
-            continue
-
-        # Adding map title
-        Story.append(Paragraph(f"{data[0]}", styles['Heading2']))
-        Story.append(Spacer(1, 12))
-
-        # Display map dimensions
-        dimension_data = [
-            ['Dimension', 'Value'],
-            ['X Min', data[3]],
-            ['X Max', data[4]],
-            ['Y Min', data[6]],
-            ['Y Max', data[7]],
-            ['Z Min', data[9]],
-            ['Z Max', data[10]]
-        ]
-        dimension_table = Table(dimension_data, colWidths=[100, 200], hAlign='LEFT')
-        dimension_table.setStyle(TableStyle([
-            ('BACKGROUND', (0,0), (-1,0), colors.gray),
-            ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),
-            ('BOX', (0,0), (-1,-1), 0.25, colors.black),
-        ]))
-        Story.append(dimension_table)
-        Story.append(Spacer(1, 12))
-
-        # Process spawn points information
-        # Ensuring the loop does not go out of bounds
-        for i in range(9, len(data), 16): # Assuming every spawn point data starts at index 9 and repeats every 16 elements
-            if i + 15 < len(data): # Check to ensure all indices for a spawn point are accessible
-                spawn_data = [
-                    ['Spawn Point', 'Details'],
-                    ['Position', f"X: {data[i+1]}, Y: {data[i+2]}, Z: {data[i+3]}"],
-                    ['Movement', f"Left: {data[i+4]}, Right: {data[i+5]}"],
-                    ['', f"Forward: {data[i+6]}, Backward: {data[i+7]}"],
-                    ['', f"Upward: {data[i+8]}, Downward: {data[i+9]}"]
+        if isinstance(data, list) and len(data) > 1:
+            Story.append(Paragraph(f"{data[0]}", styles['Heading2']))
+            Story.append(Spacer(1, 12))
+            dimension_data = [
+                ['Dimension', 'Min Value', 'Max Value'],
+                ['X Axis', data[3], data[4]],
+                ['Y Axis', data[6], data[7]],
+                ['Z Axis', data[9], data[10]]
+            ]
+            dimension_table = Table(dimension_data, colWidths=[100, 100, 100], hAlign='LEFT')
+            dimension_table.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (-1,0), colors.gray),
+                ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),
+                ('BOX', (0,0), (-1,-1), 0.25, colors.black),
+            ]))
+            Story.append(dimension_table)
+            Story.append(Spacer(1, 12))
+            idx = 11
+            while idx + 15 < len(data): 
+                spawn_details = [
+                    [data[idx+1], 'Value'],
+                    ['X Axis', data[idx+4]],
+                    ['Y Axis', data[idx+6]],
+                    ['Z Axis', data[idx+8]],
+                    [data[idx+9], ''],
+                    ['Left', data[idx+10]],
+                    ['Right', data[idx+11]],
+                    ['Forward', data[idx+12]],
+                    ['Backward', data[idx+13]],
+                    ['Upward', data[idx+14]],
+                    ['Downward', data[idx+15]]
                 ]
-                sp_table = Table(spawn_data, colWidths=[100, 300], hAlign='LEFT')
+                sp_table = Table(spawn_details, colWidths=[150, 150], hAlign='LEFT')
                 sp_table.setStyle(TableStyle([
-                    ('BACKGROUND', (0,0), (-1,0), colors.lightgrey),
+                    ('BACKGROUND', (0,0), (-1,0), colors.lightgrey), 
+                    ('BACKGROUND', (0,4), (-1,4), colors.lightgrey), 
                     ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),
                     ('BOX', (0,0), (-1,-1), 0.25, colors.black),
                 ]))
                 Story.append(sp_table)
                 Story.append(Spacer(1, 12))
-
+                idx += 16 
     doc.build(Story)
 
 
