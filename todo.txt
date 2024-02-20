@@ -1,0 +1,3 @@
+Verify data
+Add Graceful exceptions, keyboard interrupt etc.
+Exe/App files
