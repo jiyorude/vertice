@@ -50,5 +50,5 @@ Please follow these steps when choosing this approach:
 ### License
 Vertice is licensed under MIT. Please refer to `License.txt` for more information regarding usage.
 
-&copy; Jordy Veenstra 2024
+&copy; Jordy Veenstra 2024<br/>
 &copy; A Pixelated Point of View 2024
