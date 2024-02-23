@@ -1,6 +1,7 @@
 import struct
 import shutil
 import zipfile
+import time
 import glob
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, PageBreak, Spacer, Table, TableStyle, Paragraph
@@ -16,9 +17,16 @@ HEADER_LUMPS = 17
 LUMP_SIZE = 8
 HEADER_SIZE = 4 + HEADER_LUMPS * LUMP_SIZE
 
-time = datetime.now().strftime("%b_%d-%H_%M_%S")
+time_short = datetime.now().strftime("%b_%d-%H_%M_%S")
 time_full = datetime.now().strftime(("%A %d %B %Y - %H:%M:%S"))
 map_count = 0
+
+def iterate(bdel: int, tdel: float, *str: any):
+    time.sleep(bdel)
+    for char in str:
+        print(char, end='', flush=True)
+        time.sleep(tdel)
+    print()
 
 def read_lump_info(file, lump_index):
     file.seek(HEADER_SIZE + lump_index * LUMP_SIZE)
@@ -50,7 +58,7 @@ def calculate_map_dimensions(spawn_points):
         min_z, max_z = min(min_z, z), max(max_z, z)
     return (min_x, max_x), (min_y, max_y), (min_z, max_z)
 
-def process_map(bsp_path):
+def process_map(pk3_name, bsp_path):
     print("...Processing spawn points.")
     global map_count
     map_count += 1
@@ -63,7 +71,8 @@ def process_map(bsp_path):
             print("...No spawn points found in map. Skipped.")
             return
         (min_x, max_x), (min_y, max_y), (min_z, max_z) = calculate_map_dimensions(spawn_points)
-        output.append(f"Map {map_count} - {os.path.basename(bsp_path)}")
+        map_name = f"{pk3_name}/{os.path.basename(bsp_path)}" if pk3_name else os.path.basename(bsp_path)
+        output.append(f"Map {map_count} - {map_name}")
         output.append(f"Map Dimensions:")
         output.append("X Axis:")
         output.append(f"{min_x}")
@@ -101,7 +110,7 @@ def process_map(bsp_path):
         print()
         return output
 
-def generate_pdf(report_data, filename=f"output/vertice_output_{time}.pdf"):
+def generate_pdf(report_data, filename=f"output/vertice_output_{time_short}.pdf"):
     doc = SimpleDocTemplate(filename, pagesize=letter)
     styles = getSampleStyleSheet()
     Story = []
@@ -112,7 +121,7 @@ def generate_pdf(report_data, filename=f"output/vertice_output_{time}.pdf"):
     Story.append(Spacer(1, 12))
 
     for data in report_data:
-        if isinstance(data, list) and len(data) > 1:
+        if isinstance(data, list) and data:
             Story.append(Paragraph(f"{data[0]}", styles['Heading2']))
             Story.append(Spacer(1, 12))
             dimension_data = [
@@ -156,41 +165,84 @@ def generate_pdf(report_data, filename=f"output/vertice_output_{time}.pdf"):
                 idx += 16 
     doc.build(Story)
 
-
 def extract_and_process_pk3(pk3_path, temp_extract_dir="temp_maps"):
-    with zipfile.ZipFile(pk3_path, 'r') as zip_ref:
-        bsp_files = [file for file in zip_ref.namelist() if file.lower().startswith("maps/") and file.lower().endswith(".bsp")]
-        for bsp_file in bsp_files:
-            zip_ref.extract(bsp_file, temp_extract_dir)
-    maps_dir = os.path.join(temp_extract_dir, "maps")
-    if not os.path.exists(maps_dir): 
-        maps_dir = os.path.join(temp_extract_dir, "MAPS")
-    if os.path.exists(maps_dir):
-        bsp_paths = [os.path.join(maps_dir, file) for file in os.listdir(maps_dir) if file.endswith(".bsp")]
-        for bsp_path in bsp_paths:
-            yield process_map(bsp_path)
-    else:
-        print(f"...PK3 archive does not contain 'maps' folder. Skipped.")
-    shutil.rmtree(temp_extract_dir)
+    pk3_name = os.path.basename(pk3_path)
+    try:
+        with zipfile.ZipFile(pk3_path, 'r') as zip_ref:
+            bsp_files = [file for file in zip_ref.namelist() if file.lower().endswith(".bsp")]
+            if len(bsp_files) > 1:
+                print("...Extracting multiple BSP files from PK3 archive.")
+            elif len(bsp_files) == 1:
+                print("...Extracting BSP from PK3 archive.")
+            else:
+                print("...No BSP found. Skipped.")
+            for bsp_file in bsp_files:
+                zip_ref.extract(bsp_file, temp_extract_dir)
+                bsp_path = os.path.join(temp_extract_dir, bsp_file)
+                yield process_map(pk3_name, bsp_path)
+    except zipfile.BadZipFile:
+        print("...Error: Corrupted PK3 file. Vertice will terminate now.")
+        sys.exit(1)
+    finally:
+        shutil.rmtree(temp_extract_dir)
+
+def check_input_folder(input_dir='input'):
+    dummy_file_path = os.path.join(input_dir, 'dummy_pk3.pk3')
+    if os.path.exists(dummy_file_path):
+        print("...DUMMY FILE FOUND. Please delete the dummy file in the input folder and run the algorithm again.\n")
+        sys.exit(1)
+    input_files = glob.glob(os.path.join(input_dir, '*.bsp')) + glob.glob(os.path.join(input_dir, '*.pk3'))
+    if not input_files:
+        print("...NO FILES IN INPUT FOLDER. Add .bsp files or .pk3 archives to the input folder and run Vertice again.\n")
+        sys.exit(1)
+    compressed_files = glob.glob(os.path.join(input_dir, '*.7z')) + \
+                       glob.glob(os.path.join(input_dir, '*.zip')) + \
+                       glob.glob(os.path.join(input_dir, '*.rar'))
+    if compressed_files:
+        print("...ZIP/RAR/7Z ARCHIVE PRESENT IN INPUT FOLDER. Please unzip your files. Only .BSP or .PK3 files/archives are supported.\n")
+        sys.exit(1)
 
 def main(input_dir='input'):
-    map_files = glob.glob(os.path.join(input_dir, '*.bsp')) + glob.glob(os.path.join(input_dir, '*.pk3'))
-    report_data = []
-    for map_file in map_files:
-        filename = os.path.basename(map_file)
-        if filename.endswith(".pk3"):
-            print("...PK3 archive found.")
-            print("...Extracting BSP from PK3 archive.")
-            for output in extract_and_process_pk3(map_file):
-                report_data.append(output)
-        elif filename.endswith(".bsp"):
-            print('...BSP file found.')
-            map_output = process_map(map_file)
-            report_data.append(map_output)
-    generate_pdf(report_data)
+    try:
+        report_data = []
+        for root, dirs, files in os.walk(input_dir):
+            for file in files:
+                if file.endswith('.pk3') or file.endswith('.bsp'):
+                    map_file = os.path.join(root, file)
+                    if map_file.endswith(".pk3"):
+                        for output in extract_and_process_pk3(map_file):
+                            if output:
+                                report_data.append(output)
+                    elif map_file.endswith(".bsp"):
+                        output = process_map('', map_file)
+                        if output:
+                            report_data.append(output)
+        generate_pdf(report_data)
+    except Exception as e:
+        print(f"...Unexpected error: {e}")
+        sys.exit(1)
+    except KeyboardInterrupt:
+        print("\n...Operation cancelled by user.")
 
 if __name__ == "__main__":
-    print("...Running Vertice.\n")
-    main()
-    print("...Done! Check the 'output' folder.")
-    sys.exit(0)
+    try:
+        iterate(0.5, 0.010, *"\nVertice Algorithm")
+        iterate(0.5, 0.010, *"Quake III Map Boundary Analysis Tool")
+        iterate(0.5, 0.010, *"Created by A Pixelated Point of View")
+        iterate(0.5, 0.010, *f"Algorithm initiated at: {time_full}\n")
+        time.sleep(1)
+        print("\n...Conducting Initial Input Check...")
+        check_input_folder()  
+        print("...Input check passed. Running Vertice...\n")
+        time.sleep(0.5)
+        main()
+        print("...Done! Check the 'output' folder for your PDF file.")
+        print("...Thank you for using Vertice! :)\n")
+    except KeyboardInterrupt:
+        print("\n...Operation cancelled by user.")
+    except FileNotFoundError as e:
+        print(f"...Error: {e.strerror} - {e.filename}")
+    except Exception as e:
+        print(f"...Unexpected error: {str(e)}")
+    finally:
+        sys.exit(0)
