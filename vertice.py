@@ -1,15 +1,21 @@
-import struct
-import shutil
-import zipfile
-import time
-import glob
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, PageBreak, Spacer, Table, TableStyle, Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib import colors
-from datetime import datetime
-import os
-import sys
+try:
+    import struct
+    import shutil
+    import zipfile
+    import py7zr
+    import rarfile
+    import time
+    import glob
+    import os
+    import sys
+    from reportlab.lib.pagesizes import letter
+    from reportlab.platypus import SimpleDocTemplate, PageBreak, Spacer, Table, TableStyle, Paragraph
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib import colors
+    from datetime import datetime
+except ImportError:
+    print("...REQUIRED MODULES MISSING. Please install dependencies with `pip install -r requirements.txt`")
+    sys.exit(1)
 
 LUMP_ENTITIES = 0
 LUMP_MODELS = 14
@@ -186,21 +192,64 @@ def extract_and_process_pk3(pk3_path, temp_extract_dir="temp_maps"):
     finally:
         shutil.rmtree(temp_extract_dir)
 
+def extract_and_delete_archive(archive_path, extract_to):
+    pk3_found = False
+    try:
+        if archive_path.endswith('.zip'):
+            print('...ZIP archive found. Checking for PK3...')
+            with zipfile.ZipFile(archive_path, 'r') as zip_ref:
+                pk3_files = [f for f in zip_ref.namelist() if f.endswith('.pk3')]
+                if pk3_files:
+                    pk3_found = True
+                    for file in pk3_files:
+                        zip_ref.extract(file, extract_to)      
+        elif archive_path.endswith('.7z'):
+            print('...7ZIP archive found. Checking for PK3...')
+            with py7zr.SevenZipFile(archive_path, mode='r') as z:
+                all_files = z.getnames()
+                pk3_files = [f for f in all_files if f.endswith('.pk3')]
+                if pk3_files:
+                    pk3_found = True
+                    z.extract(targets=pk3_files, path=extract_to)
+        elif archive_path.endswith('.rar'):
+            print('...RAR archive found. Checking for PK3...')
+            with rarfile.RarFile(archive_path) as rf:
+                pk3_files = [f for f in rf.namelist() if f.endswith('.pk3')]
+                if pk3_files:
+                    pk3_found = True
+                    for file in pk3_files:
+                        rf.extract(file, extract_to)            
+        if pk3_found:
+            print(f"...Extracted PK3 and deleting archive: {archive_path}")
+            os.remove(archive_path)
+        else:
+            print("...No PK3 files found in archive.")
+    except Exception as e:
+        print(f"...ERROR occurred while extracting {archive_path}: {e}")
+
+def check_output_folder(input_dir='output'):
+    dummy_pdf_path = os.path.join(input_dir, 'dummy_pdf.pdf')
+    if os.path.exists(dummy_pdf_path):
+        print('...DUMMY PDF FILE FOUND. Deleting dummy file...')
+        os.remove(dummy_pdf_path)
+        print('...Deleted Dummy PDF.')
+
 def check_input_folder(input_dir='input'):
     dummy_file_path = os.path.join(input_dir, 'dummy_pk3.pk3')
     if os.path.exists(dummy_file_path):
-        print("...DUMMY FILE FOUND. Please delete the dummy file in the input folder and run the algorithm again.\n")
-        sys.exit(1)
+        print("...DUMMY PK3 FILE FOUND. Deleting dummy file...")
+        os.remove(dummy_file_path)
+        print("...Deleted Dummy PK3.")
     input_files = glob.glob(os.path.join(input_dir, '*.bsp')) + glob.glob(os.path.join(input_dir, '*.pk3'))
     if not input_files:
-        print("...NO FILES IN INPUT FOLDER. Add .bsp files or .pk3 archives to the input folder and run Vertice again.\n")
+        print("...NO FILES IN INPUT FOLDER. Add .bsp files, .pk3, .zip, .rar or .7z archives to the input folder and run the algorithm again.\n")
         sys.exit(1)
     compressed_files = glob.glob(os.path.join(input_dir, '*.7z')) + \
                        glob.glob(os.path.join(input_dir, '*.zip')) + \
                        glob.glob(os.path.join(input_dir, '*.rar'))
     if compressed_files:
-        print("...ZIP/RAR/7Z ARCHIVE PRESENT IN INPUT FOLDER. Please unzip your files. Only .BSP or .PK3 files/archives are supported.\n")
-        sys.exit(1)
+        for archive_path in compressed_files:
+            extract_and_delete_archive(archive_path, input_dir)
 
 def main(input_dir='input'):
     try:
@@ -230,19 +279,19 @@ if __name__ == "__main__":
         iterate(0.5, 0.010, *"Quake III Map Boundary Analysis Tool")
         iterate(0.5, 0.010, *"Created by A Pixelated Point of View")
         iterate(0.5, 0.010, *f"Algorithm initiated at: {time_full}\n")
-        time.sleep(1)
-        print("\n...Conducting Initial Input Check...")
-        check_input_folder()  
+        time.sleep(2)
+        print("\n...Conducting Input Check...")
+        check_input_folder()
+        check_output_folder()  
         print("...Input check passed. Running Vertice...\n")
         time.sleep(0.5)
         main()
-        print("...Done! Check the 'output' folder for your PDF file.")
-        print("...Thank you for using Vertice! :)\n")
+        print("\n...Done! Check the 'output' folder for your PDF file.")
     except KeyboardInterrupt:
         print("\n...Operation cancelled by user.")
     except FileNotFoundError as e:
-        print(f"...Error: {e.strerror} - {e.filename}")
+        print(f"...ERROR: {e.strerror} - {e.filename}")
     except Exception as e:
-        print(f"...Unexpected error: {str(e)}")
+        print(f"...UNEXPECTED ERROR: {str(e)}")
     finally:
         sys.exit(0)

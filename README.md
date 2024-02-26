@@ -32,13 +32,14 @@ Vertice can be installed in two different ways. The easiest way is to download t
 
 Simply extract the files from the download, place your Quake III Arena maps inside the `input` folder and run the executable. Vertice is able to spot the difference between `.bsp` and `.pk3` files and can work with both of them. Vertice can also recognize multiple `.bsp` files inside a `.pk3` archive. Depending on the amount of maps and processing power of your computer, the time needed to generate the data may vary, but in most cases shouldn't take longer than a few seconds. Once completed, a pdf containing all of the data will be generated in the `output` folder for further use.
 
-The second way to use vertice is by cloning the repository and installing the dependencies. You need to make sure that you have a recent version of [Python](https://www.python.org/downloads/) installed (Preferably >= 3.8). You will need `pip` as well in order to download a number of required dependencies. If you download Python from the original Python Foundation Website, pip will automatically be installed.
+The second way to use vertice is by cloning the repository and installing the dependencies. You need to make sure that you have a recent version of [Python](https://www.python.org/downloads/) installed (Preferably >= 3.8). You will need `pip` as well in order to download a number of required dependencies. If you download Python from the original Python Foundation Website, pip will automatically be installed. 
 
 Please follow these steps when choosing this approach:
 * Verify your Python version and/or install/upgrade
 * Open a new terminal window, navigate to a folder of choice
 * Clone the repository with `git clone https://github.com/jiyorude/vertice.git`
-* Type `pip install reportlab` in order to install the [reportlab](https://pypi.org/project/reportlab/) module. This is required for vertice to generate the PDF.
+* (Optional) Switch to a virtual environment of choice with `venv` or other tool that has your personal preference
+* Install all dependencies with `pip install -r requirements.txt`.
 * Place your Quake III maps inside the `input` folder. Make sure to remove the dummyfile before you run the algorithm.
 * Inside your terminal window, navigate to the folder where you cloned the repository.
 * Start the algorithm with `python vertice.py`
