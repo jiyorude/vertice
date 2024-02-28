@@ -14,8 +14,8 @@ try:
     from reportlab.lib import colors
     from datetime import datetime
 except ImportError:
-    print("...REQUIRED MODULES MISSING. Please install dependencies with `pip install -r requirements.txt`")
-    sys.exit(1)
+    print("...REQUIRED PYTHON MODULES MISSING. Please install dependencies with `pip install -r requirements.txt`")
+    sys.exit(0)
 
 LUMP_ENTITIES = 0
 LUMP_MODELS = 14
@@ -240,16 +240,21 @@ def check_input_folder(input_dir='input'):
         print("...DUMMY PK3 FILE FOUND. Deleting dummy file...")
         os.remove(dummy_file_path)
         print("...Deleted Dummy PK3.")
-    input_files = glob.glob(os.path.join(input_dir, '*.bsp')) + glob.glob(os.path.join(input_dir, '*.pk3'))
+    input_files = []
+    for root, dirs, files in os.walk(input_dir):
+        for file in files:
+            if file.endswith(('.bsp', '.pk3', '.zip', '.rar', '.7z')):
+                input_files.append(os.path.join(root, file))
     if not input_files:
-        print("...NO FILES IN INPUT FOLDER. Add .bsp files, .pk3, .zip, .rar or .7z archives to the input folder and run the algorithm again.\n")
+        check_output_folder()
+        print("...NO FILES AND/OR CORRECT FILES IN INPUT FOLDER. Add .bsp files, .pk3, .zip, .rar or .7z archives to the input folder.")
+        print('...TERMINATING vertice.\n')
         sys.exit(1)
-    compressed_files = glob.glob(os.path.join(input_dir, '*.7z')) + \
-                       glob.glob(os.path.join(input_dir, '*.zip')) + \
-                       glob.glob(os.path.join(input_dir, '*.rar'))
+    compressed_files = [file for file in input_files if file.endswith(('.7z', '.zip', '.rar'))]
     if compressed_files:
         for archive_path in compressed_files:
             extract_and_delete_archive(archive_path, input_dir)
+    check_output_folder()
 
 def main(input_dir='input'):
     try:
@@ -273,25 +278,27 @@ def main(input_dir='input'):
     except KeyboardInterrupt:
         print("\n...Operation cancelled by user.")
 
-if __name__ == "__main__":
-    try:
+def exec():
+try:
+    if __name__ == "__main__":
         iterate(0.5, 0.010, *"\nVertice Algorithm")
         iterate(0.5, 0.010, *"Quake III Map Boundary Analysis Tool")
         iterate(0.5, 0.010, *"Created by A Pixelated Point of View")
         iterate(0.5, 0.010, *f"Algorithm initiated at: {time_full}\n")
         time.sleep(2)
-        print("\n...Conducting Input Check...")
+        print("...Conducting Input Check...")
         check_input_folder()
-        check_output_folder()  
         print("...Input check passed. Running Vertice...\n")
         time.sleep(0.5)
         main()
         print("\n...Done! Check the 'output' folder for your PDF file.")
-    except KeyboardInterrupt:
-        print("\n...Operation cancelled by user.")
-    except FileNotFoundError as e:
-        print(f"...ERROR: {e.strerror} - {e.filename}")
-    except Exception as e:
-        print(f"...UNEXPECTED ERROR: {str(e)}")
-    finally:
-        sys.exit(0)
+except KeyboardInterrupt:
+    print("\n...Operation cancelled by user.")
+except FileNotFoundError as e:
+    print(f"...ERROR: {e.strerror} - {e.filename}")
+except Exception as e:
+    print(f"...UNEXPECTED ERROR: {str(e)}")
+finally:
+    sys.exit(0)
+
+exec()

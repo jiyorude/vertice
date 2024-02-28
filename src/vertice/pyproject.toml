@@ -1,0 +1,21 @@
+[project]
+name = "vertice"
+version = "0.5.0"
+authors = [{name="Jordy Veenstra / A Pixelated Point of View" <jordy.gaptx@gmail.com>"}]
+description = "Quake III Map Boundary Analysis Tool"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+  "reportlab",
+  "py7zr",
+  "rarfile"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+PyPi = "#"
+GitHub = "https://github.com/jiyorude/vertice"
