@@ -279,26 +279,25 @@ def main(input_dir='input'):
         print("\n...Operation cancelled by user.")
 
 def exec():
-try:
-    if __name__ == "__main__":
-        iterate(0.5, 0.010, *"\nVertice Algorithm")
-        iterate(0.5, 0.010, *"Quake III Map Boundary Analysis Tool")
-        iterate(0.5, 0.010, *"Created by A Pixelated Point of View")
-        iterate(0.5, 0.010, *f"Algorithm initiated at: {time_full}\n")
-        time.sleep(2)
-        print("...Conducting Input Check...")
-        check_input_folder()
-        print("...Input check passed. Running Vertice...\n")
-        time.sleep(0.5)
-        main()
-        print("\n...Done! Check the 'output' folder for your PDF file.")
-except KeyboardInterrupt:
-    print("\n...Operation cancelled by user.")
-except FileNotFoundError as e:
-    print(f"...ERROR: {e.strerror} - {e.filename}")
-except Exception as e:
-    print(f"...UNEXPECTED ERROR: {str(e)}")
-finally:
-    sys.exit(0)
-
+    try:
+        if __name__ == "__main__":
+            iterate(0.5, 0.010, *"\nVertice Algorithm")
+            iterate(0.5, 0.010, *"Quake III Map Boundary Analysis Tool")
+            iterate(0.5, 0.010, *"Created by A Pixelated Point of View")
+            iterate(0.5, 0.010, *f"Algorithm initiated at: {time_full}\n")
+            time.sleep(2)
+            print("...Conducting Input Check...")
+            check_input_folder()
+            print("...Input check passed. Running Vertice...\n")
+            time.sleep(0.5)
+            main()
+            print("\n...Done! Check the 'output' folder for your PDF file.")
+    except KeyboardInterrupt:
+        print("\n...Operation cancelled by user.")
+    except FileNotFoundError as e:
+        print(f"...ERROR: {e.strerror} - {e.filename}")
+    except Exception as e:
+        print(f"...UNEXPECTED ERROR: {str(e)}")
+    finally:
+        sys.exit(0)
 exec()
