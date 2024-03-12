@@ -5,16 +5,18 @@ try:
     import py7zr
     import rarfile
     import time
-    import glob
     import os
     import sys
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
     from reportlab.lib.pagesizes import letter
-    from reportlab.platypus import SimpleDocTemplate, PageBreak, Spacer, Table, TableStyle, Paragraph
+    from reportlab.platypus import SimpleDocTemplate, PageBreak, Image, Spacer, Table, TableStyle, Paragraph
     from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib.units import inch
     from reportlab.lib import colors
     from datetime import datetime
 except ImportError:
-    print("...REQUIRED PYTHON MODULES MISSING. Please install dependencies with `pip install -r requirements.txt`")
+    print("\n...REQUIRED PYTHON MODULES MISSING. Please install dependencies with `pip install -r requirements.txt`\n")
     sys.exit(0)
 
 LUMP_ENTITIES = 0
@@ -26,6 +28,7 @@ HEADER_SIZE = 4 + HEADER_LUMPS * LUMP_SIZE
 time_short = datetime.now().strftime("%b_%d-%H_%M_%S")
 time_full = datetime.now().strftime(("%A %d %B %Y - %H:%M:%S"))
 map_count = 0
+spawn_points = []
 
 def iterate(bdel: int, tdel: float, *str: any):
     time.sleep(bdel)
@@ -33,6 +36,24 @@ def iterate(bdel: int, tdel: float, *str: any):
         print(char, end='', flush=True)
         time.sleep(tdel)
     print()
+
+def generate_3d_plot(spawn_points, minmax_x, minmax_y, minmax_z, output_filename, map_id):
+    fig = plt.figure(figsize=(8, 7), dpi=300)
+    ax = fig.add_subplot(111, projection='3d')
+    ax.view_init(elev=25, azim=45)
+    _, max_z = minmax_z
+    z_buffer = 0.1 * (max_z - minmax_z[0])
+    ax.set_zlim(minmax_z[0] - z_buffer, max_z + z_buffer)
+    for i, (x, y, z) in enumerate(spawn_points):
+        ax.scatter(x, y, z, color='black', s=100, depthshade=True)
+        ax.text(x, y, z + 0.02 * (max_z - minmax_z[0]), f"{i+1}", color='white', ha='center', va='center', fontsize=9)
+    ax.set_xlim(*minmax_x)
+    ax.set_ylim(*minmax_y)
+    ax.set_zlim(*minmax_z)
+    ax.grid(True, which='both', ls="--", linewidth=0.5, color='grey')
+    ax.set_axisbelow(False)
+    plt.savefig(output_filename, bbox_inches='tight')
+    plt.close()
 
 def read_lump_info(file, lump_index):
     file.seek(HEADER_SIZE + lump_index * LUMP_SIZE)
@@ -42,7 +63,7 @@ def read_lump_info(file, lump_index):
 def parse_entities(file, offset, length):
     file.seek(offset)
     entities_data = file.read(length).decode('utf-8', errors='ignore')
-    spawn_points = []
+    global spawn_points
     for entity in entities_data.split('}'):
         if '"classname" "info_player_deathmatch"' in entity:
             lines = entity.split('\n')
@@ -77,6 +98,8 @@ def process_map(pk3_name, bsp_path):
             print("...No spawn points found in map. Skipped.")
             return
         (min_x, max_x), (min_y, max_y), (min_z, max_z) = calculate_map_dimensions(spawn_points)
+        plot_filename = f"output/img/spawn_plot_{time_short}.png"
+        generate_3d_plot(spawn_points, (min_x, max_x), (min_y, max_y), (min_z, max_z), plot_filename, map_count)
         map_name = f"{pk3_name}/{os.path.basename(bsp_path)}" if pk3_name else os.path.basename(bsp_path)
         output.append(f"Map {map_count} - {map_name}")
         output.append(f"Map Dimensions:")
@@ -114,19 +137,20 @@ def process_map(pk3_name, bsp_path):
             output.append(f"{move_down}")
             output.append("")
         print()
-        return output
+        return (output, plot_filename)
 
 def generate_pdf(report_data, filename=f"output/vertice_output_{time_short}.pdf"):
     doc = SimpleDocTemplate(filename, pagesize=letter)
+    page_width, page_height = letter
+    max_image_width = page_width - 2 * inch 
+    max_image_height = page_height - 2 * inch
     styles = getSampleStyleSheet()
     Story = []
-    
     Story.append(Paragraph("Vertice (Quake III Map Boundary Analysis Tool)", styles['Heading1']))
     Story.append(Spacer(1, 12))
     Story.append(Paragraph(f"Report generated at: {time_full}", styles['Normal']))
     Story.append(Spacer(1, 12))
-
-    for data in report_data:
+    for data, plot_filename in report_data:
         if isinstance(data, list) and data:
             Story.append(Paragraph(f"{data[0]}", styles['Heading2']))
             Story.append(Spacer(1, 12))
@@ -169,6 +193,18 @@ def generate_pdf(report_data, filename=f"output/vertice_output_{time_short}.pdf"
                 Story.append(sp_table)
                 Story.append(Spacer(1, 12))
                 idx += 16 
+            if plot_filename:
+                image = Image(plot_filename, width=max_image_width, height=max_image_height, kind='proportional')
+                Story.append(PageBreak())
+                Story.append(Paragraph("Spawn points visualisation", styles['Heading1']))
+                Story.append(Spacer(1, 12))
+                Story.append(image)
+                Story.append(PageBreak())
+            else:
+                Story.append(PageBreak())
+                Story.append(Spacer(1, 12))
+                Story.append(Paragraph("...No spawn points available for visualisation for this map.", styles['Normal']))
+                Story.append(PageBreak())
     doc.build(Story)
 
 def extract_and_process_pk3(pk3_path, temp_extract_dir="temp_maps"):
@@ -256,6 +292,17 @@ def check_input_folder(input_dir='input'):
             extract_and_delete_archive(archive_path, input_dir)
     check_output_folder()
 
+def temp_dir_create(input_dir='output/img'):
+    os.makedirs(input_dir, exist_ok=True)
+
+def dir_cleanup(input_dir='output/img'):
+    print('...Cleaning temporary files.')
+    try:
+        shutil.rmtree(input_dir)
+        print('...Succesfully cleaned temporary files.')
+    except Exception as e:
+        print(f"...FAILED to clean temporary files: {e}")
+
 def main(input_dir='input'):
     try:
         report_data = []
@@ -277,6 +324,7 @@ def main(input_dir='input'):
         sys.exit(1)
     except KeyboardInterrupt:
         print("\n...Operation cancelled by user.")
+        sys.exit(0)
 
 def exec():
     try:
@@ -289,15 +337,20 @@ def exec():
             print("...Conducting Input Check...")
             check_input_folder()
             print("...Input check passed. Running Vertice...\n")
+            temp_dir_create()
             time.sleep(0.5)
             main()
-            print("\n...Done! Check the 'output' folder for your PDF file.")
+            dir_cleanup()
+            print("\n...Done! Check the 'OUTPUT' folder for your PDF file.")
     except KeyboardInterrupt:
         print("\n...Operation cancelled by user.")
+        sys.exit(0)
     except FileNotFoundError as e:
         print(f"...ERROR: {e.strerror} - {e.filename}")
+        sys.exit(1)
     except Exception as e:
         print(f"...UNEXPECTED ERROR: {str(e)}")
+        sys.exit(1)
     finally:
         sys.exit(0)
 exec()

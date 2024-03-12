@@ -18,7 +18,8 @@ setup(
     install_requires=[
        "reportlab",
        "py7zr",
-       "rarfile"
+       "rarfile",
+       "matplotlib"
     ],
     classifiers=[
         'Programming Language :: Python :: 3',

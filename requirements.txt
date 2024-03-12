@@ -1,3 +1,4 @@
 reportlab
 rarfile
 py7zr
+matplotlib
