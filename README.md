@@ -16,7 +16,7 @@ Licensed under MIT
 <br/>
 
 ### Background
-*Vertice* is a Python algorithm that outputs `boundary data` found inside Quake III map files. It outputs the size of each map as X, Y, Z coordinates, finds every spawn point, and calculates the movement space the player/or the camera has before it enters the void.
+*Vertice* is a Python algorithm that outputs `boundary data` found inside Quake III map files. It outputs the size of each map as X, Y, Z coordinates, finds every spawn point, and calculates the movement space the player/or the camera has before it enters the void. Furthermore, it outputs the coordinates of each spawn point inside a 3D plot for visual reference.
 
 The algorithm was initially made as a helper tool to generate map and camera data for the *avant* algorithm, yet as a standalone application it might prove useful in certain situations as it can offer the following features:
 
