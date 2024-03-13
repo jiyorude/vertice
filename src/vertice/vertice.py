@@ -38,15 +38,20 @@ def iterate(bdel: int, tdel: float, *str: any):
     print()
 
 def generate_3d_plot(spawn_points, minmax_x, minmax_y, minmax_z, output_filename, map_id):
-    fig = plt.figure(figsize=(8, 7), dpi=300)
+    fig = plt.figure(figsize=(9, 7), dpi=300)
     ax = fig.add_subplot(111, projection='3d')
     ax.view_init(elev=25, azim=45)
-    _, max_z = minmax_z
-    z_buffer = 0.1 * (max_z - minmax_z[0])
-    ax.set_zlim(minmax_z[0] - z_buffer, max_z + z_buffer)
-    for i, (x, y, z) in enumerate(spawn_points):
-        ax.scatter(x, y, z, color='black', s=100, depthshade=True)
-        ax.text(x, y, z + 0.02 * (max_z - minmax_z[0]), f"{i+1}", color='white', ha='center', va='center', fontsize=9)
+
+    x_offset = 375
+    y_offset = 250
+    z_offset = 50
+    
+    for i, (x, y, z) in enumerate(spawn_points, start=1):
+        x_adjusted, y_adjusted, z_adjusted = x + x_offset, y + y_offset, z + z_offset
+        ax.scatter(x, y, z, color='black', s=150)
+        ax.text(x_adjusted, y_adjusted, z_adjusted, f"{i}", color='white', fontsize=9,
+            bbox=dict(facecolor='black'))
+
     ax.set_xlim(*minmax_x)
     ax.set_ylim(*minmax_y)
     ax.set_zlim(*minmax_z)
