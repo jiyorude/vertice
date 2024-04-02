@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='vertice',
-    version='0.7.0',
+    version='0.7.1',
     author='Jordy Veenstra / A Pixelated Point of View',
     author_email='jordy.gaptx@gmail.com',
     description='Quake III Map Boundary Analysis Tool',
