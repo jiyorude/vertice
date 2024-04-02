@@ -1,6 +1,6 @@
 [project]
 name = "vertice"
-version = "0.5.0"
+version = "0.7.0"
 authors = [{name="Jordy Veenstra / A Pixelated Point of View" <jordy.gaptx@gmail.com>"}]
 description = "Quake III Map Boundary Analysis Tool"
 readme = "README.md"
@@ -18,5 +18,4 @@ classifiers = [
 ]
 
 [project.urls]
-PyPi = "#"
 GitHub = "https://github.com/jiyorude/vertice"

@@ -1,0 +1,9 @@
+LICENSE
+README.md
+setup.py
+src/vertice.egg-info/PKG-INFO
+src/vertice.egg-info/SOURCES.txt
+src/vertice.egg-info/dependency_links.txt
+src/vertice.egg-info/entry_points.txt
+src/vertice.egg-info/requires.txt
+src/vertice.egg-info/top_level.txt
