@@ -1,6 +1,14 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"": "src"}
+packages = "find:"
+
 [project]
 name = "vertice"
-version = "0.7.1"
+version = "0.7.2"
 authors = [{name="Jordy Veenstra / A Pixelated Point of View" <jordy.gaptx@gmail.com>"}]
 description = "Quake III Map Boundary Analysis Tool"
 readme = "README.md"
