@@ -41,7 +41,7 @@ The third and last way to use vertice is by cloning the repository and installin
 * Install the PyPi package with `pip install vertice`
 * Open a new terminal window, navigate to a directory of choice, for example your `Desktop` or `Documents`.
 * Create two folders: `input` and `output` in that same directory.
-* Plae your Quake III maps inside the input folder. Vertice supports 7zip, rar, and zip archives or bsp and pk3 files/archives. It does not matter if they are placed in the root of the input folder or in seperate folders, as long as they are within the `input` folder.
+* Place your Quake III maps inside the input folder. Vertice supports 7zip, rar, and zip archives or bsp and pk3 files/archives. It does not matter if they are placed in the root of the input folder or in seperate folders, as long as they are within the `input` folder.
 * Run the algorithm in your terminal by typing `vertice_run`.
 * The algorithm should start and updates should be visible inside the terminal window.
 * Once the message `...Done!` is visible, you can navigate to the `output` folder in order to find your PDF file.

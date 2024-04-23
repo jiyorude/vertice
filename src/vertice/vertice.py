@@ -48,9 +48,9 @@ def generate_3d_plot(spawn_points, minmax_x, minmax_y, minmax_z, output_filename
     
     for i, (x, y, z) in enumerate(spawn_points, start=1):
         x_adjusted, y_adjusted, z_adjusted = x + x_offset, y + y_offset, z + z_offset
-        ax.scatter(x, y, z, color='black', s=150)
-        ax.text(x_adjusted, y_adjusted, z_adjusted, f"{i}", color='white', fontsize=9,
-            bbox=dict(facecolor='black'))
+        ax.scatter(x, y, z, color='black', s=150, edgecolors='white', linewidth=0.5)  
+        ax.text(x_adjusted, y_adjusted, z_adjusted, f"{i}", color='red', fontsize=12,
+                ha='center', va='center') 
 
     ax.set_xlim(*minmax_x)
     ax.set_ylim(*minmax_y)
