@@ -1,6 +1,8 @@
 LICENSE
 README.md
 setup.py
+src/vertice/__init__.py
+src/vertice/vertice.py
 src/vertice.egg-info/PKG-INFO
 src/vertice.egg-info/SOURCES.txt
 src/vertice.egg-info/dependency_links.txt

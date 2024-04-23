@@ -1,2 +1,2 @@
 [console_scripts]
-vertice_run = vertice.vertice:exec
+vertice_run = vertice.vertice:exec_alg
