@@ -1,1 +1,0 @@
-from .vertice import exec

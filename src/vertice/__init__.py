@@ -1,1 +1,1 @@
-from .vertice import exec
+from .vertice import exec_alg

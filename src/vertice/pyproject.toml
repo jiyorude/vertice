@@ -8,7 +8,7 @@ packages = "find:"
 
 [project]
 name = "vertice"
-version = "0.7.3"
+version = "0.7.4"
 authors = [{name="Jordy Veenstra / A Pixelated Point of View" <jordy.gaptx@gmail.com>"}]
 description = "Quake III Map Boundary Analysis Tool"
 readme = "README.md"

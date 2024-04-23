@@ -333,20 +333,19 @@ def main(input_dir='input'):
 
 def exec_alg():
     try:
-        if __name__ == "__main__":
-            iterate(0.5, 0.010, *"\nVertice Algorithm")
-            iterate(0.5, 0.010, *"Quake III Map Boundary Analysis Tool")
-            iterate(0.5, 0.010, *"Created by A Pixelated Point of View")
-            iterate(0.5, 0.010, *f"Algorithm initiated at: {time_full}\n")
-            time.sleep(2)
-            print("...Conducting Input Check...")
-            check_input_folder()
-            print("...Input check passed. Running Vertice...\n")
-            temp_dir_create()
-            time.sleep(0.5)
-            main()
-            dir_cleanup()
-            print("\n...Done! Check the 'OUTPUT' folder for your PDF file.")
+        iterate(0.5, 0.010, *"\nVertice Algorithm")
+        iterate(0.5, 0.010, *"Quake III Map Boundary Analysis Tool")
+        iterate(0.5, 0.010, *"Created by A Pixelated Point of View")
+        iterate(0.5, 0.010, *f"Algorithm initiated at: {time_full}\n")
+        time.sleep(2)
+        print("...Conducting Input Check...")
+        check_input_folder()
+        print("...Input check passed. Running Vertice...\n")
+        temp_dir_create()
+        time.sleep(0.5)
+        main()
+        dir_cleanup()
+        print("\n...Done! Check the 'OUTPUT' folder for your PDF file.")
     except KeyboardInterrupt:
         print("\n...Operation cancelled by user.")
         sys.exit(0)
