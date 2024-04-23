@@ -331,7 +331,7 @@ def main(input_dir='input'):
         print("\n...Operation cancelled by user.")
         sys.exit(0)
 
-def exec():
+def exec_alg():
     try:
         if __name__ == "__main__":
             iterate(0.5, 0.010, *"\nVertice Algorithm")
@@ -358,4 +358,4 @@ def exec():
         sys.exit(1)
     finally:
         sys.exit(0)
-exec()
+exec_alg()
