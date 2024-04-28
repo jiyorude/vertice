@@ -50,6 +50,14 @@ def generate_3d_plot(spawn_points, minmax_x, minmax_y, minmax_z, output_filename
     x_offset_percent = 0.1
     y_offset_percent = 0.15
     z_offset_percent = 0.03
+
+    x_offset_percent_medium = 0.1
+    y_offset_percent_medium = 0.10
+    z_offset_percent_medium = 0.02
+
+    x_offset_percent_small = 0.1
+    y_offset_percent_small = 0.05
+    z_offset_percent_small = 0.01
    
     if len(spawn_points) < 15:
         for i, (x, y, z) in enumerate(spawn_points, start=1):
@@ -61,17 +69,17 @@ def generate_3d_plot(spawn_points, minmax_x, minmax_y, minmax_z, output_filename
                 ha='center', va='center')
     elif len(spawn_points) >= 15 and len(spawn_points) < 20:
         for i, (x, y, z) in enumerate(spawn_points, start=1):
-            x_adjusted = x + x_range * x_offset_percent
-            y_adjusted = y + y_range * y_offset_percent
-            z_adjusted = z + z_range * z_offset_percent
+            x_adjusted = x + x_range * x_offset_percent_medium
+            y_adjusted = y + y_range * y_offset_percent_medium
+            z_adjusted = z + z_range * z_offset_percent_medium
             ax.scatter(x, y, z, color='black', s=100, edgecolors='white', linewidth=0.5)  
             ax.text(x_adjusted, y_adjusted, z_adjusted, f"{i}", color='red', fontsize=8,
                 ha='center', va='center')
     else:
          for i, (x, y, z) in enumerate(spawn_points, start=1):
-            x_adjusted = x + x_range * x_offset_percent
-            y_adjusted = y + y_range * y_offset_percent
-            z_adjusted = z + z_range * z_offset_percent
+            x_adjusted = x + x_range * x_offset_percent_small
+            y_adjusted = y + y_range * y_offset_percent_small
+            z_adjusted = z + z_range * z_offset_percent_small
             ax.scatter(x, y, z, color='black', s=80, edgecolors='white', linewidth=0.5)
             ax.text(x_adjusted, y_adjusted, z_adjusted, f"{i}", color='red', fontsize=6,
                 ha='center', va='center')
@@ -117,6 +125,7 @@ def process_map(pk3_name, bsp_path):
     print("...Processing spawn points.")
     global map_count
     map_count += 1
+    spawn_points = []
     with open(bsp_path, 'rb') as bsp_file:
         output = []
         entities_offset, entities_length = read_lump_info(bsp_file, LUMP_ENTITIES)
@@ -334,6 +343,7 @@ def dir_cleanup(input_dir='output/img'):
 def main(input_dir='input'):
     try:
         report_data = []
+        spawn_points = []
         for root, dirs, files in os.walk(input_dir):
             for file in files:
                 if file.endswith('.pk3') or file.endswith('.bsp'):
