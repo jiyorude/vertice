@@ -8,6 +8,7 @@ try:
     import os
     import sys
     import matplotlib.pyplot as plt
+    import numpy as np
     from mpl_toolkits.mplot3d import Axes3D
     from reportlab.lib.pagesizes import letter
     from reportlab.platypus import SimpleDocTemplate, PageBreak, Image, Spacer, Table, TableStyle, Paragraph
@@ -42,16 +43,38 @@ def generate_3d_plot(spawn_points, minmax_x, minmax_y, minmax_z, output_filename
     ax = fig.add_subplot(111, projection='3d')
     ax.view_init(elev=25, azim=45)
 
-    x_offset = 375
-    y_offset = 250
-    z_offset = 50
-    
-    for i, (x, y, z) in enumerate(spawn_points, start=1):
-        x_adjusted, y_adjusted, z_adjusted = x + x_offset, y + y_offset, z + z_offset
-        ax.scatter(x, y, z, color='black', s=150, edgecolors='white', linewidth=0.5)  
-        ax.text(x_adjusted, y_adjusted, z_adjusted, f"{i}", color='red', fontsize=12,
-                ha='center', va='center') 
-
+    x_range = minmax_x[1] - minmax_x[0]
+    y_range = minmax_y[1] - minmax_y[0]
+    z_range = minmax_z[1] - minmax_z[0]
+   
+    x_offset_percent = 0.1
+    y_offset_percent = 0.15
+    z_offset_percent = 0.03
+   
+    if len(spawn_points) < 15:
+        for i, (x, y, z) in enumerate(spawn_points, start=1):
+            x_adjusted = x + x_range * x_offset_percent
+            y_adjusted = y + y_range * y_offset_percent
+            z_adjusted = z + z_range * z_offset_percent
+            ax.scatter(x, y, z, color='black', s=125, edgecolors='white', linewidth=0.5)  
+            ax.text(x_adjusted, y_adjusted, z_adjusted, f"{i}", color='red', fontsize=12,
+                ha='center', va='center')
+    elif len(spawn_points) >= 15 and len(spawn_points) < 20:
+        for i, (x, y, z) in enumerate(spawn_points, start=1):
+            x_adjusted = x + x_range * x_offset_percent
+            y_adjusted = y + y_range * y_offset_percent
+            z_adjusted = z + z_range * z_offset_percent
+            ax.scatter(x, y, z, color='black', s=100, edgecolors='white', linewidth=0.5)  
+            ax.text(x_adjusted, y_adjusted, z_adjusted, f"{i}", color='red', fontsize=8,
+                ha='center', va='center')
+    else:
+         for i, (x, y, z) in enumerate(spawn_points, start=1):
+            x_adjusted = x + x_range * x_offset_percent
+            y_adjusted = y + y_range * y_offset_percent
+            z_adjusted = z + z_range * z_offset_percent
+            ax.scatter(x, y, z, color='black', s=80, edgecolors='white', linewidth=0.5)
+            ax.text(x_adjusted, y_adjusted, z_adjusted, f"{i}", color='red', fontsize=6,
+                ha='center', va='center')
     ax.set_xlim(*minmax_x)
     ax.set_ylim(*minmax_y)
     ax.set_zlim(*minmax_z)
@@ -103,7 +126,7 @@ def process_map(pk3_name, bsp_path):
             print("...No spawn points found in map. Skipped.")
             return
         (min_x, max_x), (min_y, max_y), (min_z, max_z) = calculate_map_dimensions(spawn_points)
-        plot_filename = f"output/img/spawn_plot_{time_short}.png"
+        plot_filename = f"output/img/spawn_plot_{time_short}_map_{map_count}.png"        
         generate_3d_plot(spawn_points, (min_x, max_x), (min_y, max_y), (min_z, max_z), plot_filename, map_count)
         map_name = f"{pk3_name}/{os.path.basename(bsp_path)}" if pk3_name else os.path.basename(bsp_path)
         output.append(f"Map {map_count} - {map_name}")

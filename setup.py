@@ -18,7 +18,8 @@ setup(
        "reportlab",
        "py7zr",
        "rarfile",
-       "matplotlib"
+       "matplotlib",
+       "numpy"
     ],
     classifiers=[
         'Programming Language :: Python :: 3',
