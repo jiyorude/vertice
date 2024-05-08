@@ -100,6 +100,7 @@ def parse_entities(file, offset, length):
     file.seek(offset)
     entities_data = file.read(length).decode('utf-8', errors='ignore')
     global spawn_points
+    spawn_points = []
     for entity in entities_data.split('}'):
         if '"classname" "info_player_deathmatch"' in entity:
             lines = entity.split('\n')
@@ -124,8 +125,8 @@ def calculate_map_dimensions(spawn_points):
 def process_map(pk3_name, bsp_path):
     print("...Processing spawn points.")
     global map_count
+    spawn_points = None
     map_count += 1
-    spawn_points = []
     with open(bsp_path, 'rb') as bsp_file:
         output = []
         entities_offset, entities_length = read_lump_info(bsp_file, LUMP_ENTITIES)
