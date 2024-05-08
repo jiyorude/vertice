@@ -18,6 +18,8 @@ Licensed under MIT
 ### Background
 *Vertice* is a Python algorithm that outputs `boundary data` found inside Quake III map files. It outputs the size of each map as X, Y, Z coordinates, finds every spawn point, and calculates the movement space the player/or the camera has before it enters the void. Furthermore, it outputs the coordinates of each spawn point inside a 3D plot for visual reference.
 
+Vertice is able to spot the difference between `.bsp` and `.pk3` files and can work with both of them. Vertice can also recognize multiple `.bsp` files inside a `.pk3` archive. Depending on the amount of maps and processing power of your computer, the time needed to generate the data may vary, but in most cases shouldn't take longer than a few seconds. Once completed, a pdf containing all of the data will be generated in the `output` folder for further use.
+
 The algorithm was initially made as a helper tool to generate map and camera data for the *avant* algorithm, yet as a standalone application it might prove useful in certain situations as it can offer the following features:
 
 * Calculate the size/scope of a map;
@@ -28,13 +30,9 @@ The algorithm was initially made as a helper tool to generate map and camera dat
 <br/>
 
 ### Installation
-Vertice can be installed in three different ways. The easiest way is to download the standalone `.exe` or `.app` files found inside the `Release` section of the repository.
+Vertice can be installed in two different ways. The easiest way to run the algorithm is to install the PyPi package and run it from the commandline. The second way to use vertice is by cloning the repository and installing the dependencies.
 
-Simply extract the files from the download, place your Quake III Arena maps inside the `input` folder and run the executable. Vertice is able to spot the difference between `.bsp` and `.pk3` files and can work with both of them. Vertice can also recognize multiple `.bsp` files inside a `.pk3` archive. Depending on the amount of maps and processing power of your computer, the time needed to generate the data may vary, but in most cases shouldn't take longer than a few seconds. Once completed, a pdf containing all of the data will be generated in the `output` folder for further use.
-
-Another way to run vertice is by installing it as a PyPi package and running the algorithm through a specific run command.
-
-The third and last way to use vertice is by cloning the repository and installing the dependencies. You need to make sure that you have a recent version of [Python](https://www.python.org/downloads/) installed (Preferably >= 3.8). You will need `pip` as well in order to download a number of required dependencies. If you download Python from the original Python Foundation Website, pip will automatically be installed. 
+You need to make sure that you have a recent version of [Python](https://www.python.org/downloads/) installed (Preferably >= 3.8). You will need `pip` as well in order to download a number of required dependencies. If you download Python from the original Python Foundation Website, pip will automatically be installed. 
 
 **If you are using the PyPi package, please follow this approach:**
 * Verify your Python version and/or install/upgrade
